@@ -39,18 +39,13 @@ jobs:
           cmake .. -DLLAMA_CURL=ON
           make -j2
           
-      - name: Download Dolphin 8B Model
+      - name: Download Dolphin 7B Model
         run: |
-         cd llama.cpp/build
-          echo "📥 Downloading Dolphin 8B Q4_K_M (~4.5GB)..."
-    
-          INSTALL_PATH="/usr/local"
-          wget --progress=bar:force -O model.gguf /
-         "https://hf-mirror.com/TheBloke/dolphin-2.9.2-llama3-8b-GGUF/resolve/main/dolphin-2.9.2-llama3-8b-Q4_K_M.gguf"
-    
-         echo "✅ Model downloaded"
-         ls -lh model.gguf
-         ls -lh model.gguf
+          cd llama.cpp/build
+          echo "📥 Downloading Dolphin 7B Q4_K_M (~4.5GB)..."
+          wget --progress=bar:force -O model.gguf "https://hf-mirror.com/TheBloke/dolphin-2.9.2-llama3-8b-GGUF/resolve/main/dolphin-2.9.2-llama3-8b-Q4_K_M.gguf"
+          echo "✅ Model downloaded successfully"
+          ls -lh model.gguf
 
       - name: Run inference
         run: |
@@ -59,7 +54,6 @@ jobs:
           USER_PROMPT="${{ github.event.inputs.prompt }}"
           SYSTEM_PROMPT="${{ github.event.inputs.system_prompt }}"
           
-          # Create input with system prompt
           cat > input.txt << EOF
           <|im_start|>system
           ${SYSTEM_PROMPT}
@@ -70,11 +64,10 @@ jobs:
           <|im_start|>assistant
           EOF
           
-          echo "🚀 Running Dolphin 8B..."
+          echo "🚀 Running Dolphin 7B..."
           echo "System: ${SYSTEM_PROMPT}" > debug.txt
           echo "User: ${USER_PROMPT}" >> debug.txt
           
-          # Run model
           ./bin/llama-cli -m model.gguf \
             -f input.txt \
             -n 1024 \
@@ -88,7 +81,6 @@ jobs:
             --no-display-prompt \
             2>/dev/null > output.txt
           
-          # Clean output
           sed -i '/llama_perf/d' output.txt
           sed -i '/^$/d' output.txt
           
@@ -97,7 +89,7 @@ jobs:
           cat > response.txt << EOF
           ========================================
           ⏰ زمان: $(date '+%Y-%m-%d %H:%M:%S')
-          🤖 مدل: Dolphin 8B (Uncensored)
+          🤖 مدل: Dolphin 7B (Uncensored)
           📝 System Prompt: ${{ github.event.inputs.system_prompt }}
           ❓ سوال: ${{ github.event.inputs.prompt }}
           ========================================
@@ -122,5 +114,5 @@ jobs:
           git config --local user.name "Endjustice"
           git remote set-url origin https://Endjustice:${GITHUB_TOKEN}@github.com/Endjustice/llm-dolphin.git
           git add result.txt response.txt debug.txt
-          git commit -m "🤖 Dolphin response: $(date '+%Y%m%d-%H%M%S')" || echo "No changes to commit"
+          git commit -m "🤖 Dolphin response: $(date '+%Y%m%d-%H%M%S')" || echo "No changes"
           git push origin main
