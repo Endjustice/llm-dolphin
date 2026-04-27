@@ -39,18 +39,14 @@ jobs:
           cmake .. -DLLAMA_CURL=ON
           make -j2
           
-      - name: Download Dolphin 7B Model
+      - name: Download Dolphin 8B Model
         run: |
          cd llama.cpp/build
-          echo "📥 Downloading Dolphin 7B Q4_K_M (~4.5GB)..."
+          echo "📥 Downloading Dolphin 8B Q4_K_M (~4.5GB)..."
     
           INSTALL_PATH="/usr/local"
-          wget \
-         --header="Authorization: Bearer ${{ secrets.HF_TOKEN }}" \
-         --header="X-Use-Cache: 0" \
-         --progress=bar:force \
-         -O model.gguf \
-         "https://huggingface.co/TheBloke/dolphin-2.9.2-llama3-8b-GGUF/resolve/main/dolphin-2.9.2-llama3-8b-Q4_K_M.gguf?download=1"
+          wget --progress=bar:force -O model.gguf /
+         "https://hf-mirror.com/TheBloke/dolphin-2.9.2-llama3-8b-GGUF/resolve/main/dolphin-2.9.2-llama3-8b-Q4_K_M.gguf"
     
          echo "✅ Model downloaded"
          ls -lh model.gguf
@@ -74,7 +70,7 @@ jobs:
           <|im_start|>assistant
           EOF
           
-          echo "🚀 Running Dolphin 7B..."
+          echo "🚀 Running Dolphin 8B..."
           echo "System: ${SYSTEM_PROMPT}" > debug.txt
           echo "User: ${USER_PROMPT}" >> debug.txt
           
@@ -101,7 +97,7 @@ jobs:
           cat > response.txt << EOF
           ========================================
           ⏰ زمان: $(date '+%Y-%m-%d %H:%M:%S')
-          🤖 مدل: Dolphin 7B (Uncensored)
+          🤖 مدل: Dolphin 8B (Uncensored)
           📝 System Prompt: ${{ github.event.inputs.system_prompt }}
           ❓ سوال: ${{ github.event.inputs.prompt }}
           ========================================
@@ -124,7 +120,7 @@ jobs:
         run: |
           git config --local user.email "m.ohammad.xxx13@gmail.com"
           git config --local user.name "Endjustice"
-          git remote set-url origin https://Endjustice:${GITHUB_TOKEN}@github.com/Endjustice/Hash-buster-.git
+          git remote set-url origin https://Endjustice:${GITHUB_TOKEN}@github.com/Endjustice/llm-dolphin.git
           git add result.txt response.txt debug.txt
           git commit -m "🤖 Dolphin response: $(date '+%Y%m%d-%H%M%S')" || echo "No changes to commit"
           git push origin main
